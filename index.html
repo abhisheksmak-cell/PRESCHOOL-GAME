@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Daughter's Learning World</title>
+    <!-- Load Flutter Web Engine Core for execution -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        body {
+            margin: 0; padding: 0; background: linear-gradient(to bottom, #FFF0F5, #E6E6FA);
+            font-family: 'Comic Sans MS', sans-serif; text-align: center; color: #4A4A4A; user-select: none;
+        }
+        .screen { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; padding: 20px; }
+        .active { display: flex; }
+        h1 { font-size: 32px; margin-bottom: 30px; }
+        .btn {
+            width: 85%; max-width: 400px; background: white; border: none; padding: 20px;
+            border-radius: 25px; margin: 10px 0; font-size: 20px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1); display: flex; align-items: center; transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .circle-icon { width: 50px; height: 50px; background: #FFCDD2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-right: 15px; }
+        .game-box { background: white; border: 4px solid #FFE0B2; border-radius: 30px; padding: 30px; margin: 20px; cursor: pointer; display: inline-block; transition: transform 0.2s; }
+        .game-box:active { transform: scale(0.95); }
+        .nav-btn { background: #BBDEFB; border: none; padding: 15px 30px; font-size: 20px; border-radius: 20px; font-weight: bold; margin: 10px; cursor: pointer; }
+        .score-board { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+        .celebration { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; font-size: 40px; color: white; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: HOME MENU -->
+    <div id="menu-screen" class="screen active">
+        <h1>Let's Play & Learn! ⭐</h1>
+        <button class="btn" onclick="openGame('math')">
+            <div class="circle-icon" style="background:#FFE0B2">🐘</div>
+            <div>Which is Bigger?<br><span style="font-size:12px; color:gray; font-weight:normal;">Math & Sizes</span></div>
+        </button>
+        <button class="btn" onclick="openGame('phonics')">
+            <div class="circle-icon" style="background:#BBDEFB">🍎</div>
+            <div>ABC Phonics Tap<br><span style="font-size:12px; color:gray; font-weight:normal;">Letters & Sounds</span></div>
+        </button>
+    </div>
+
+    <!-- SCREEN 2: MATH GAME -->
+    <div id="math-screen" class="screen">
+        <div class="score-board">Stars Collected: ⭐ <span id="score-val">0</span></div>
+        <div style="display: flex; justify-content: space-around; width: 100%; max-width: 500px;">
+            <div id="left-choice" class="game-box" onclick="checkMath(true)">🍎</div>
+            <div id="right-choice" class="game-box" onclick="checkMath(false)">🦁</div>
+        </div>
+        <h2 style="margin-top: 40px; color: #607D8B;">Tap the biggest object!</h2>
+        <button class="nav-btn" style="background:#FFCDD2; margin-top:20px;" onclick="goHome()">Back to Menu</button>
+    </div>
+
+    <!-- SCREEN 3: PHONICS GAME -->
+    <div id="phonics-screen" class="screen">
+        <div id="card-display" class="game-box" style="width: 260px; height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #FFCDD2;" onclick="speakPhonics()">
+            <span id="p-letter" style="font-size: 90px; font-weight: bold;">A</span>
+            <span id="p-emoji" style="font-size: 70px;">🍎</span>
+            <span id="p-text" style="font-size: 20px; font-weight: bold; margin-top: 15px;">Tap to Hear!</span>
+        </div>
+        <div>
+            <button class="nav-btn" onclick="changeLetter(-1)">⬅️</button>
+            <button class="nav-btn" onclick="changeLetter(1)">➡️</button>
+        </div>
+        <button class="nav-btn" style="background:#FFCDD2; margin-top: 20px;" onclick="goHome()">Back to Menu</button>
+    </div>
+
+    <!-- CELEBRATION OVERLAY -->
+    <div id="celebration" class="celebration">
+        <span>🎉 ✨ 🌟</span>
+        <h2 id="celebration-text">Awesome! You Found It!</h2>
+    </div>
+
+    <script>
+        let score = 0;
+        let leftSize, rightSize, leftIsBigger;
+        const pool = ["🍎","🦁","🚗","🧸","🦆","🍦","🏀","🐱","🐶","🐘"];
+        
+        const phonicsData = [
+            {l: "A", w: "Apple", e: "🍎", c: "#FFCDD2"},
+            {l: "B", w: "Ball", e: "🏀", c: "#BBDEFB"},
+            {l: "C", w: "Cat", e: "🐱", c: "#E8F5E9"},
+            {l: "D", w: "Dog", e: "🐶", c: "#FFF9C4"},
+            {l: "E", w: "Elephant", e: "🐘", c: "#E1BEE7"},
+            {l: "F", w: "Fish", e: "🐟", c: "#FFE0B2"}
+        ];
+        let pIndex = 0;
+
+        function openGame(game) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if(game === 'math') {
+                setupMath();
+                document.getElementById('math-screen').classList.add('active');
+            } else {
+                setupPhonics();
+                document.getElementById('phonics-screen').classList.add('active');
+            }
+        }
+
+        function goHome() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('menu-screen').classList.add('active');
+        }
+
+        function setupMath() {
+            leftSize = Math.floor(Math.random() * 5) + 2; // Size scale 2-6
+            do { rightSize = Math.floor(Math.random() * 5) + 2; } while(rightSize === leftSize);
+            leftIsBigger = leftSize > rightSize;
+            
+            let lBox = document.getElementById('left-choice');
+            let rBox = document.getElementById('right-choice');
+            
+            lBox.innerHTML = pool[Math.floor(Math.random()*pool.length)];
+            rBox.innerHTML = pool[Math.floor(Math.random()*pool.length)];
+            
+            lBox.style.transform = `scale(${leftSize * 0.25 + 0.5})`;
+            rBox.style.transform = `scale(${rightSize * 0.25 + 0.5})`;
+        }
+
+        function checkMath(clickedLeft) {
+            if((clickedLeft && leftIsBigger) || (!clickedLeft && !leftIsBigger)) {
+                score++;
+                document.getElementById('score-val').innerText = score;
+                triggerCelebration("Awesome! You Found It!");
+                setTimeout(setupMath, 1500);
+            } else {
+                alert("Look closely! Try tapping the bigger one! ✨");
+            }
+        }
+
+        function setupPhonics() {
+            let data = phonicsData[pIndex];
+            document.getElementById('p-letter').innerText = data.l;
+            document.getElementById('p-emoji').innerText = data.e;
+            document.getElementById('card-display').style.backgroundColor = data.c;
+            document.getElementById('p-text').innerText = "Tap to Hear!";
+        }
+
+        function changeLetter(dir) {
+            pIndex = (pIndex + dir + phonicsData.length) % phonicsData.length;
+            setupPhonics();
+        }
+
+        function speakPhonics() {
+            let data = phonicsData[pIndex];
+            document.getElementById('p-text').innerText = `${data.l} is for ${data.w}!`;
+            
+            // Speak audio out loud using native browser voice synthesis
+            let utterance = new SpeechSynthesisUtterance(`${data.l} is for ${data.w}`);
+            utterance.rate = 0.85; // Speak clearly for toddlers
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function triggerCelebration(msg) {
+            let cel = document.getElementById('celebration');
+            document.getElementById('celebration-text').innerText = msg;
+            cel.style.display = 'flex';
+            setTimeout(() => { cel.style.display = 'none'; }, 1400);
+        }
+    </script>
+</body>
+</html>
