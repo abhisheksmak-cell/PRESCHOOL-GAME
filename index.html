@@ -2,164 +2,165 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Daughter's Learning World</title>
-    <!-- Load Flutter Web Engine Core for execution -->
-    <script src="https://unpkg.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kids Early Learning Sandbox</title>
     <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #FFF0F5 0%, #E6E6FA 100%);
+            --primary-dark: #3A3A4F;
+        }
         body {
-            margin: 0; padding: 0; background: linear-gradient(to bottom, #FFF0F5, #E6E6FA);
-            font-family: 'Comic Sans MS', sans-serif; text-align: center; color: #4A4A4A; user-select: none;
+            margin: 0; padding: 0; background: var(--bg-gradient);
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            text-align: center; color: var(--primary-dark); user-select: none;
+            overflow-x: hidden; -webkit-tap-highlight-color: transparent;
         }
-        .screen { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; padding: 20px; }
+        .screen { display: none; min-height: 100vh; flex-direction: column; justify-content: space-between; align-items: center; box-sizing: border-box; padding: 30px 20px; }
         .active { display: flex; }
-        h1 { font-size: 32px; margin-bottom: 30px; }
-        .btn {
-            width: 85%; max-width: 400px; background: white; border: none; padding: 20px;
-            border-radius: 25px; margin: 10px 0; font-size: 20px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1); display: flex; align-items: center; transition: 0.2s;
+        
+        /* Typography & Header UI */
+        h1 { font-size: 36px; margin: 10px 0; text-shadow: 2px 2px 0px white; color: #4A4A6A; font-weight: 900; }
+        .subtitle { font-size: 16px; color: #7A7A9A; margin-top: -10px; margin-bottom: 30px; font-weight: bold; }
+        
+        /* Menu Buttons */
+        .btn-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px; margin: auto 0; }
+        .menu-btn {
+            width: 90%; max-width: 440px; background: white; border: none; padding: 22px;
+            border-radius: 30px; font-size: 22px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(160,160,190,0.15); display: flex; align-items: center;
+            border: 3px solid transparent; transition: all 0.2s ease;
         }
-        .btn:active { transform: scale(0.98); }
-        .circle-icon { width: 50px; height: 50px; background: #FFCDD2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-right: 15px; }
-        .game-box { background: white; border: 4px solid #FFE0B2; border-radius: 30px; padding: 30px; margin: 20px; cursor: pointer; display: inline-block; transition: transform 0.2s; }
-        .game-box:active { transform: scale(0.95); }
-        .nav-btn { background: #BBDEFB; border: none; padding: 15px 30px; font-size: 20px; border-radius: 20px; font-weight: bold; margin: 10px; cursor: pointer; }
-        .score-board { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
-        .celebration { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; font-size: 40px; color: white; flex-direction: column; }
+        .menu-btn:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(160,160,190,0.1); }
+        .menu-btn.blue { border-color: #BAEDFF; }
+        .menu-btn.orange { border-color: #FFE0B2; }
+        .circle-icon { width: 64px; height: 64px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 36px; margin-right: 20px; }
+
+        /* Game 1: Size Logic UI */
+        .score-board { font-size: 26px; font-weight: 900; background: white; padding: 12px 30px; border-radius: 50px; box-shadow: 0 6px 15px rgba(0,0,0,0.05); margin-bottom: 10px; }
+        .arena { display: flex; justify-content: space-around; align-items: center; width: 100%; max-width: 600px; margin: auto 0; height: 300px; }
+        .item-card {
+            background: white; border-radius: 40px; padding: 25px; cursor: pointer;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06); border: 5px solid #F0F0FB;
+            display: flex; justify-content: center; align-items: center; transition: all 0.2s ease;
+        }
+        
+        /* Game 2: Premium Phonics Card UI */
+        .phonics-card {
+            width: 85%; max-width: 340px; height: 440px; background: white; border-radius: 45px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; cursor: pointer; margin: auto 0;
+            border: 6px solid white; transition: transform 0.2s ease;
+        }
+        .phonics-card:active { transform: scale(0.97); }
+        .char-display { font-size: 110px; font-weight: 900; margin: 0; line-height: 1.1; color: #2D2D44; }
+        .emoji-display { font-size: 90px; margin: 15px 0; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1)); }
+        .word-display { font-size: 26px; font-weight: 800; color: #5C5C7A; letter-spacing: 0.5px; }
+        
+        /* Navigation Controls */
+        .controls-row { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 20px; width: 100%; }
+        .nav-circle {
+            width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 28px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1); background: white; transition: transform 0.1s;
+        }
+        .nav-circle:active { transform: scale(0.9); }
+        .back-home-btn { background: #FFCCD2; border: none; padding: 14px 35px; font-size: 18px; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
+
+        /* Full Screen Overlay Notifications */
+        .popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.92); justify-content: center; align-items: center; z-index: 100; flex-direction: column; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN 1: HOME MENU -->
-    <div id="menu-screen" class="screen active">
-        <h1>Let's Play & Learn! ⭐</h1>
-        <button class="btn" onclick="openGame('math')">
-            <div class="circle-icon" style="background:#FFE0B2">🐘</div>
-            <div>Which is Bigger?<br><span style="font-size:12px; color:gray; font-weight:normal;">Math & Sizes</span></div>
-        </button>
-        <button class="btn" onclick="openGame('phonics')">
-            <div class="circle-icon" style="background:#BBDEFB">🍎</div>
-            <div>ABC Phonics Tap<br><span style="font-size:12px; color:gray; font-weight:normal;">Letters & Sounds</span></div>
-        </button>
-    </div>
-
-    <!-- SCREEN 2: MATH GAME -->
-    <div id="math-screen" class="screen">
-        <div class="score-board">Stars Collected: ⭐ <span id="score-val">0</span></div>
-        <div style="display: flex; justify-content: space-around; width: 100%; max-width: 500px;">
-            <div id="left-choice" class="game-box" onclick="checkMath(true)">🍎</div>
-            <div id="right-choice" class="game-box" onclick="checkMath(false)">🦁</div>
-        </div>
-        <h2 style="margin-top: 40px; color: #607D8B;">Tap the biggest object!</h2>
-        <button class="nav-btn" style="background:#FFCDD2; margin-top:20px;" onclick="goHome()">Back to Menu</button>
-    </div>
-
-    <!-- SCREEN 3: PHONICS GAME -->
-    <div id="phonics-screen" class="screen">
-        <div id="card-display" class="game-box" style="width: 260px; height: 320px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #FFCDD2;" onclick="speakPhonics()">
-            <span id="p-letter" style="font-size: 90px; font-weight: bold;">A</span>
-            <span id="p-emoji" style="font-size: 70px;">🍎</span>
-            <span id="p-text" style="font-size: 20px; font-weight: bold; margin-top: 15px;">Tap to Hear!</span>
-        </div>
+    <!-- SCREEN 1: MAIN ENTRY HOME HUB -->
+    <div id="hub-screen" class="screen active">
         <div>
-            <button class="nav-btn" onclick="changeLetter(-1)">⬅️</button>
-            <button class="nav-btn" onclick="changeLetter(1)">➡️</button>
+            <h1>Kids Learning App ✨</h1>
+            <div class="subtitle">Fun Activities for Pre-KG</div>
         </div>
-        <button class="nav-btn" style="background:#FFCDD2; margin-top: 20px;" onclick="goHome()">Back to Menu</button>
+        
+        <div class="btn-container">
+            <button class="menu-btn orange" onclick="startSizeGame()">
+                <div class="circle-icon" style="background:#FFE0B2">🦁</div>
+                <div style="text-align:left;">Which is Bigger?<br><span style="font-size:13px; color:#9A9A9A; font-weight:normal;">Compare sizes & targets</span></div>
+            </button>
+            <button class="menu-btn blue" onclick="startPhonics('en')">
+                <div class="circle-icon" style="background:#B3E5FC">🍎</div>
+                <div style="text-align:left;">English Phonics<br><span style="font-size:13px; color:#9A9A9A; font-weight:normal;">A to Z Sound Adventure</span></div>
+            </button>
+            <button class="menu-btn blue" onclick="startPhonics('hi')">
+                <div class="circle-icon" style="background:#C8E6C9">🍇</div>
+                <div style="text-align:left;">Hindi Phonics (स्वर)<br><span style="font-size:13px; color:#9A9A9A; font-weight:normal;">अ से अः वर्णमाला ज्ञान</span></div>
+            </button>
+        </div>
+        <div></div>
     </div>
 
-    <!-- CELEBRATION OVERLAY -->
-    <div id="celebration" class="celebration">
-        <span>🎉 ✨ 🌟</span>
-        <h2 id="celebration-text">Awesome! You Found It!</h2>
+    <!-- SCREEN 2: DYNAMIC SIZE LOGIC GAME -->
+    <div id="size-screen" class="screen">
+        <div class="score-board">Stars Collected: ⭐ <span id="star-count">0</span></div>
+        <div class="arena">
+            <div id="left-item" class="item-card" onclick="processSizeChoice(true)"></div>
+            <div id="right-item" class="item-card" onclick="processSizeChoice(false)"></div>
+        </div>
+        <h2 style="color: #5C5C7A; font-weight: 800;">Tap the larger object!</h2>
+        <button class="back-home-btn" onclick="exitToHub()">Back to Menu</button>
+    </div>
+
+    <!-- SCREEN 3: PHONICS EDUCATION STATION -->
+    <div id="phonics-screen" class="screen">
+        <h1 id="phonics-title">English Alphabets</h1>
+        <div id="flash-card" class="phonics-card" onclick="playVoicePrompt()">
+            <span id="card-letter" class="char-display">A</span>
+            <span id="card-emoji" class="emoji-display">🍎</span>
+            <span id="card-word" class="word-display">Tap Card to Hear</span>
+        </div>
+        <div class="controls-row">
+            <button class="nav-circle" onclick="shiftCard(-1)">⬅️</button>
+            <button class="nav-circle" onclick="shiftCard(1)">➡️</button>
+        </div>
+        <button class="back-home-btn" onclick="exitToHub()">Back to Menu</button>
+    </div>
+
+    <!-- REWARD OVERLAY BOX -->
+    <div id="reward-popup" class="popup">
+        <span style="font-size:100px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));">🌟</span>
+        <h1 style="color: #4CAF50; font-size: 40px; margin-top:20px;">Superb! Done!</h1>
     </div>
 
     <script>
-        let score = 0;
-        let leftSize, rightSize, leftIsBigger;
-        const pool = ["🍎","🦁","🚗","🧸","🦆","🍦","🏀","🐱","🐶","🐘"];
-        
-        const phonicsData = [
-            {l: "A", w: "Apple", e: "🍎", c: "#FFCDD2"},
-            {l: "B", w: "Ball", e: "🏀", c: "#BBDEFB"},
-            {l: "C", w: "Cat", e: "🐱", c: "#E8F5E9"},
-            {l: "D", w: "Dog", e: "🐶", c: "#FFF9C4"},
-            {l: "E", w: "Elephant", e: "🐘", c: "#E1BEE7"},
-            {l: "F", w: "Fish", e: "🐟", c: "#FFE0B2"}
+        let currentPoints = 0;
+        let leftDimension, rightDimension, isLeftTargetBigger;
+        let currentLanguageMode = 'en';
+        let customPhonicsIndex = 0;
+
+        const assetList = ["🍎","🦁","🚗","🧸","🦆","🍦","🏀","🐱","🐶","🐘","🦉","🌈","🚀","🍉"];
+
+        const alphaEnglish = [
+            {l:"A", w:"Apple", e:"🍎", c:"#FFCDD2"}, {l:"B", w:"Ball", e:"🏀", c:"#BBDEFB"},
+            {l:"C", w:"Cat", e:"🐱", c:"#E8F5E9"}, {l:"D", w:"Dog", e:"🐶", c:"#FFF9C4"},
+            {l:"E", w:"Elephant", e:"🐘", c:"#E1BEE7"}, {l:"F", w:"Fish", e:"🐟", c:"#FFE0B2"},
+            {l:"G", w:"Grapes", e:"🍇", c:"#C8E6C9"}, {l:"H", w:"Hat", e:"🎩", c:"#D1C4E9"},
+            {l:"I", w:"Ice Cream", e:"🍦", c:"#FFECB3"}, {l:"J", w:"Juice", e:"🧃", c:"#E1BEE7"},
+            {l:"K", w:"Kite", e:"🪁", c:"#FFE0B2"}, {l:"L", w:"Lion", e:"🦁", c:"#FFCDD2"},
+            {l:"M", w:"Monkey", e:"🐒", c:"#C8E6C9"}, {l:"N", w:"Nest", e:"🪹", c:"#B3E5FC"},
+            {l:"O", w:"Orange", e:"🍊", c:"#FFE0B2"}, {l:"P", w:"Parrot", e:"🦜", c:"#E8F5E9"},
+            {l:"Q", w:"Queen", e:"👸", c:"#D1C4E9"}, {l:"R", w:"Rabbit", e:"🐇", c:"#FFCDD2"},
+            {l:"S", w:"Sun", e:"☀️", c:"#FFF9C4"}, {l:"T", w:"Train", e:"🚂", c:"#B3E5FC"},
+            {l:"U", w:"Umbrella", e:"☂️", c:"#E1BEE7"}, {l:"V", w:"Van", e:"🚐", c:"#FFE0B2"},
+            {l:"W", w:"Watch", e:"⌚", c:"#C8E6C9"}, {l:"X", w:"Xylophone", e:"🎼", c:"#FFECB3"},
+            {l:"Y", w:"Yo-Yo", e:"🪀", c:"#FFCDD2"}, {l:"Z", w:"Zebra", e:"🦓", c:"#E8F5E9"}
         ];
-        let pIndex = 0;
 
-        function openGame(game) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            if(game === 'math') {
-                setupMath();
-                document.getElementById('math-screen').classList.add('active');
-            } else {
-                setupPhonics();
-                document.getElementById('phonics-screen').classList.add('active');
-            }
-        }
-
-        function goHome() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('menu-screen').classList.add('active');
-        }
-
-        function setupMath() {
-            leftSize = Math.floor(Math.random() * 5) + 2; // Size scale 2-6
-            do { rightSize = Math.floor(Math.random() * 5) + 2; } while(rightSize === leftSize);
-            leftIsBigger = leftSize > rightSize;
-            
-            let lBox = document.getElementById('left-choice');
-            let rBox = document.getElementById('right-choice');
-            
-            lBox.innerHTML = pool[Math.floor(Math.random()*pool.length)];
-            rBox.innerHTML = pool[Math.floor(Math.random()*pool.length)];
-            
-            lBox.style.transform = `scale(${leftSize * 0.25 + 0.5})`;
-            rBox.style.transform = `scale(${rightSize * 0.25 + 0.5})`;
-        }
-
-        function checkMath(clickedLeft) {
-            if((clickedLeft && leftIsBigger) || (!clickedLeft && !leftIsBigger)) {
-                score++;
-                document.getElementById('score-val').innerText = score;
-                triggerCelebration("Awesome! You Found It!");
-                setTimeout(setupMath, 1500);
-            } else {
-                alert("Look closely! Try tapping the bigger one! ✨");
-            }
-        }
-
-        function setupPhonics() {
-            let data = phonicsData[pIndex];
-            document.getElementById('p-letter').innerText = data.l;
-            document.getElementById('p-emoji').innerText = data.e;
-            document.getElementById('card-display').style.backgroundColor = data.c;
-            document.getElementById('p-text').innerText = "Tap to Hear!";
-        }
-
-        function changeLetter(dir) {
-            pIndex = (pIndex + dir + phonicsData.length) % phonicsData.length;
-            setupPhonics();
-        }
-
-        function speakPhonics() {
-            let data = phonicsData[pIndex];
-            document.getElementById('p-text').innerText = `${data.l} is for ${data.w}!`;
-            
-            // Speak audio out loud using native browser voice synthesis
-            let utterance = new SpeechSynthesisUtterance(`${data.l} is for ${data.w}`);
-            utterance.rate = 0.85; // Speak clearly for toddlers
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function triggerCelebration(msg) {
-            let cel = document.getElementById('celebration');
-            document.getElementById('celebration-text').innerText = msg;
-            cel.style.display = 'flex';
-            setTimeout(() => { cel.style.display = 'none'; }, 1400);
-        }
-    </script>
-</body>
-</html>
+        const alphaHindi = [
+            {l:"अ", w:"अनार (Anar)", e:"🫘", c:"#FFCDD2", s:"अ से अनार"},
+            {l:"आ", w:"आम (Aam)", e:"🥭", c:"#FFE0B2", s:"आ से आम"},
+            {l:"इ", w:"इमली (Imli)", e:"🪵", c:"#FFF9C4", s:"इ से इमली"},
+            {l:"ई", w:"ईख (Eekh)", e:"🌾", c:"#E8F5E9", s:"ई से ईख"},
+            {l:"उ", w:"उल्लू (Ullu)", e:"🦉", c:"#B3E5FC", s:"उ से उल्लू"},
+            {l:"ऊ", w:"ऊन (Oon)", e:"🧶", c:"#D1C4E9", s:"ऊ से ऊन"},
+            {l:"ऋ", w:"ऋषि (Rishi)", e:"🧘", c:"#E1BEE7", s:"ऋ से ऋषि"},
+            {l:"ए", w:"एड़ी (Edee)", e:"🦶", c:"#FFECB3", s:"ए से एड़ी"},
+            {l:"ऐ", w:"ऐनक (Ainak)", e:"👓", c:"#F5F5F5", s:"ऐ से ऐनक"},
+            {l:"ओ", w:"ओखली (Okhli)", e:"🥣", c:"#FFE0B2", s:"ओ से ओखली"},
